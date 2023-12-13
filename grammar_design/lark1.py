@@ -150,7 +150,7 @@ if __name__ == "__main__":
     # Create the Lark parser
     # parser = Lark(grammar, parser="lalr", start="start", transformer=FunctionTransformer())
     parser = Lark.open(
-        "prova.lark",
+        "grammar.lark",
         rel_to=__file__,
         start="start",
         parser="lalr",

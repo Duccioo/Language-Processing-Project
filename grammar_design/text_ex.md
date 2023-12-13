@@ -11,7 +11,7 @@ rules
 
 where name is the function name with the usual restrictions (an alphanumeric string
 beginning with a letter), par1.. are the function parameters whose names follow the
-same rules as variables names, op is + or \* (sum or product). The function body contains
+same rules as variables names, op is + or * (sum or product). The function body contains
 only the return instruction that involves the parameters.
 
 - assume that only one function can be defined
