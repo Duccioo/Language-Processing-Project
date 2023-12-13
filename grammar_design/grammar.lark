@@ -1,5 +1,6 @@
 
-?start: function_def (function_def)* (function_call)*
+?start: result
+?result: function_def (function_def)* (function_call)*
 
 ?function_def: "function" function_name "(" parameters ")" "{" "return" expr ";" "}" 
 ?function_name: NAME

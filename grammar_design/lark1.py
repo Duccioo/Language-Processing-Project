@@ -12,6 +12,18 @@ class FunctionTransformer(Transformer):
         "expression": {"variable": [], "operations": []},
     }
 
+    def result(self, args):
+        # print(args[1])
+        function_definition_name = args[0][0]
+        function_definition_variable = args[0][1]
+        function_definition_operation = args[0][2]
+
+        function_call_name = args[1][0]
+        function_call_variable = args[1][1]
+        result = args[1][2]
+
+        return f"calling function {function_call_name} with {function_call_variable} variables... \n Results: {result}"
+
     def function_def(self, args):
         name, parameters, expression = args
 
@@ -25,10 +37,15 @@ class FunctionTransformer(Transformer):
 
         if not set(self.func["expression"]["variable"]) <= set(self.func["args"]):
             print("error: some variables defined in function are not arguments")
-            print(self.func["expression"]["variable"], self.func["args"])
+            print(self.func["expression"]["variable"], "!=", self.func["args"])
+            exit()
 
         self.func["expression"]["operations"] = expression
-        return self.func["name"]
+        return (
+            self.func["name"],
+            self.func["args"],
+            self.func["expression"]["operations"],
+        )
 
     def function_call(self, args):
         name, arguments = args
@@ -45,7 +62,7 @@ class FunctionTransformer(Transformer):
             result = calc_expression(
                 variables_dict, self.func["expression"]["operations"]
             )
-            return result
+            return name, arguments, result
 
     def sum(self, args):
         if isinstance(args[0], float) and isinstance(args[1], float):
@@ -141,7 +158,7 @@ def calc_expression(variables: dict, operations: list):
 if __name__ == "__main__":
     # Example function definition and call
     function_definition = """ 
-        function add(x, y, z) { return -x+2-y*z; }
+        function add(x, y, z) { return 3*z-11+(2*y+1)+(-x+4); }
         add(3, 4, 2);
     """
 
@@ -164,5 +181,5 @@ if __name__ == "__main__":
     # parsed_call = parser.parse(function_call)
 
     # Print the parsed results
-    print("\nFunction Definition:", parsed_function)
+    print("\n", parsed_function)
     # print("Function Call:", parsed_call)
