@@ -1,0 +1,28 @@
+
+?start: function_def (function_def)* (function_call)*
+
+?function_def: "function" function_name "(" parameters ")" "{" "return" expr ";" "}" 
+?function_name: NAME
+?parameters: NAME ("," NAME)*
+
+?expr: term
+    | expr "+" term -> sum
+    | expr "-" term -> sub
+
+?term: factor
+    | term "*" factor -> mul
+    | term "/" factor -> div
+
+?factor: "(" expr ")"
+    | NUMBER -> var
+    | NAME -> var
+    | "-" factor -> neg
+
+
+?function_call: function_name "(" args ")" ";" 
+?args: NUMBER ("," NUMBER)*
+
+%import common.CNAME -> NAME
+%import common.NUMBER -> NUMBER
+%import common.WS
+%ignore WS

@@ -5,6 +5,9 @@ __pycache__/
 
 # C extensions
 *.so
+/grammar_design/lark
+/grammar_design/lark2.py
+/grammar_design/lark3.py
 
 # Distribution / packaging
 .Python
