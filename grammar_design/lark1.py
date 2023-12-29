@@ -12,17 +12,21 @@ class FunctionTransformer(Transformer):
         "expression": {"variable": [], "operations": []},
     }
 
+    list_func_optimized = {}
+    calling_function = []
+
     def result(self, args):
-        # print(args[1])
-        function_definition_name = args[0][0]
-        function_definition_variable = args[0][1]
-        function_definition_operation = args[0][2]
+        list_results = []
+        for called in self.calling_function:
+            result = calc_expression(
+                called["variable"],
+                self.list_func_optimized[called["name"]]["expression"]["operations"],
+            )
+            list_results.append(
+                f"calling function {called['name']} with {called['variable']} variables... \n Results: {result}"
+            )
 
-        function_call_name = args[1][0]
-        function_call_variable = args[1][1]
-        result = args[1][2]
-
-        return f"calling function {function_call_name} with {function_call_variable} variables... \n Results: {result}"
+        return list_results
 
     def function_def(self, args):
         name, parameters, expression = args
@@ -41,10 +45,24 @@ class FunctionTransformer(Transformer):
             exit()
 
         self.func["expression"]["operations"] = expression
+        self.list_func_optimized[name] = {
+            "args": self.func["args"],
+            "expression": {
+                "variable": self.func["expression"]["variable"],
+                "operations": expression,
+            },
+        }
+
+        self.func = {
+            "name": None,
+            "args": [],
+            "expression": {"variable": [], "operations": []},
+        }
+
         return (
-            self.func["name"],
-            self.func["args"],
-            self.func["expression"]["operations"],
+            name,
+            element,
+            expression,
         )
 
     def function_call(self, args):
@@ -54,15 +72,13 @@ class FunctionTransformer(Transformer):
         if isinstance(arguments, tree.Tree):
             arguments = arguments.children
 
-        for i, arg in enumerate(arguments):
-            variables_dict[self.func["args"][i]] = arg
-        if name != self.func["name"]:
-            print("function not found")
-        else:
-            result = calc_expression(
-                variables_dict, self.func["expression"]["operations"]
-            )
-            return name, arguments, result
+        if name in self.list_func_optimized:
+            for i, arg in enumerate(arguments):
+                variables_dict[self.list_func_optimized[name]["args"][i]] = arg
+            self.calling_function.append({"name": name, "variable": variables_dict})
+            return variables_dict
+
+        print(f"function {name} not found")
 
     def sum(self, args):
         if isinstance(args[0], float) and isinstance(args[1], float):
@@ -158,11 +174,19 @@ def calc_expression(variables: dict, operations: list):
 if __name__ == "__main__":
     # Example function definition and call
     function_definition = """ 
-        function add(x, y, z) { return 3*z-11+(2*y+1)+(-x+4); }
-        add(3, 4, 2);
+    
+        function primo(x, y) {
+            return x+y;
+        }
+        function secondo(x, y) { 
+            return x-y; 
+        }
+        function terzo(x,y,z){
+            return x*y;
+        }
+        
+        secondo(3, 4);
     """
-
-    # function_call = "add (3, 4);"
 
     # Create the Lark parser
     # parser = Lark(grammar, parser="lalr", start="start", transformer=FunctionTransformer())
@@ -176,10 +200,5 @@ if __name__ == "__main__":
     # Parse the function definition and call
     parsed_function = parser.parse(function_definition)
 
-    # function_call = parser.parse("add(3, 4, 2);")
-
-    # parsed_call = parser.parse(function_call)
-
     # Print the parsed results
     print("\n", parsed_function)
-    # print("Function Call:", parsed_call)
