@@ -182,10 +182,11 @@ if __name__ == "__main__":
             return x-y; 
         }
         function terzo(x,y,z){
-            return x*y;
+            return x*y*z;
         }
         
         secondo(3, 4);
+        primo(1,1);
     """
 
     # Create the Lark parser
