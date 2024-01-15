@@ -11,9 +11,10 @@ from transformers import Wav2Vec2CTCTokenizer
 from transformers import Wav2Vec2FeatureExtractor
 from transformers import Wav2Vec2Processor
 
-import IPython.display as ipd
 import numpy as np
 import random
+
+import evaluate
 
 from transformers import TrainingArguments
 
@@ -23,6 +24,8 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Union
 from transformers import Wav2Vec2ForCTC
 from transformers import Trainer
+
+import os
 
 
 @dataclass
@@ -108,21 +111,8 @@ def extract_all_chars(batch):
     return {"vocab": [vocab], "all_text": [all_text]}
 
 
-def prepare_dataset(batch):
-    audio = batch["audio"]
-
-    # batched output is "un-batched"
-    batch["input_values"] = processor(
-        audio["array"], sampling_rate=audio["sampling_rate"]
-    ).input_values[0]
-    batch["input_length"] = len(batch["input_values"])
-
-    with processor.as_target_processor():
-        batch["labels"] = processor(batch["transcription"]).input_ids
-    return batch
-
-
 def compute_metrics(pred):
+    wer_metric = evaluate.load("wer")
     pred_logits = pred.predictions
     pred_ids = np.argmax(pred_logits, axis=-1)
 
@@ -138,33 +128,31 @@ def compute_metrics(pred):
 
 
 if __name__ == "__main__":
-    common_voice_train = load_dataset(
-        "PolyAI/minds14", name="it-IT", split="train+validation"
-    )
-    common_voice_test = load_dataset("PolyAI/minds14", name="it-IT", split="test")
+    dataset_train = load_dataset("PolyAI/minds14", name="it-IT", split="train[0:500]")
+    dataset_test = load_dataset("PolyAI/minds14", name="it-IT", split="train[500:600]")
 
-    common_voice_train = common_voice_train.remove_columns(
+    dataset_train = dataset_train.remove_columns(
         ["english_transcription", "intent_class", "lang_id"]
     )
-    common_voice_test = common_voice_test.remove_columns(
+    dataset_test = dataset_test.remove_columns(
         ["english_transcription", "intent_class", "lang_id"]
     )
 
-    common_voice_train = common_voice_train.map(remove_special_characters)
-    common_voice_test = common_voice_test.map(remove_special_characters)
-    vocab_train = common_voice_train.map(
+    dataset_train = dataset_train.map(remove_special_characters)
+    dataset_test = dataset_test.map(remove_special_characters)
+    vocab_train = dataset_train.map(
         extract_all_chars,
         batched=True,
         batch_size=-1,
         keep_in_memory=True,
-        remove_columns=common_voice_train.column_names,
+        remove_columns=dataset_train.column_names,
     )
-    vocab_test = common_voice_test.map(
+    vocab_test = dataset_test.map(
         extract_all_chars,
         batched=True,
         batch_size=-1,
         keep_in_memory=True,
-        remove_columns=common_voice_test.column_names,
+        remove_columns=dataset_test.column_names,
     )
     vocab_list = list(set(vocab_train["vocab"][0]) | set(vocab_test["vocab"][0]))
     vocab_dict = {v: k for k, v in enumerate(sorted(vocab_list))}
@@ -194,37 +182,55 @@ if __name__ == "__main__":
     )
 
     # dataset
-    common_voice_train = common_voice_train.cast_column(
-        "audio", Audio(sampling_rate=16_000)
+    dataset_train = dataset_train.cast_column("audio", Audio(sampling_rate=16_000))
+    dataset_test = dataset_test.cast_column("audio", Audio(sampling_rate=16_000))
+
+    # sample of dataset
+    rand_int = random.randint(0, len(dataset_train) - 1)
+    print("Target text:", dataset_train[rand_int]["transcription"])
+    print("Input array shape:", dataset_train[rand_int]["audio"]["array"].shape)
+    print("Sampling rate:", dataset_train[rand_int]["audio"]["sampling_rate"])
+
+    def prepare_dataset(batch):
+        audio = batch["audio"]
+
+        # batched output is "un-batched"
+        batch["input_values"] = processor(
+            audio["array"], sampling_rate=audio["sampling_rate"]
+        ).input_values[0]
+        batch["input_length"] = len(batch["input_values"])
+
+        with processor.as_target_processor():
+            batch["labels"] = processor(batch["transcription"]).input_ids
+        return batch
+
+    dataset_train_processed = dataset_train.map(
+        prepare_dataset, remove_columns=dataset_train.column_names
     )
-    common_voice_test = common_voice_test.cast_column(
-        "audio", Audio(sampling_rate=16_000)
+    dataset_test_processed = dataset_test.map(
+        prepare_dataset, remove_columns=dataset_test.column_names
     )
 
-    rand_int = random.randint(0, len(common_voice_train) - 1)
-
-    print("Target text:", common_voice_train[rand_int]["transcription"])
-    print("Input array shape:", common_voice_train[rand_int]["audio"]["array"].shape)
-    print("Sampling rate:", common_voice_train[rand_int]["audio"]["sampling_rate"])
-
-    common_voice_train_processed = common_voice_train.map(
-        prepare_dataset, remove_columns=common_voice_train.column_names
+    max_input_length_in_sec = 15.0
+    dataset_train_processed = dataset_train_processed.filter(
+        lambda x: x
+        < max_input_length_in_sec * processor.feature_extractor.sampling_rate,
+        input_columns=["input_length"],
     )
-    common_voice_test_processed = common_voice_test.map(
-        prepare_dataset, remove_columns=common_voice_test.column_names
-    )
-
-    # max_input_length_in_sec = 5.0
-    # common_voice_train = common_voice_train.filter(lambda x: x < max_input_length_in_sec * processor.feature_extractor.sampling_rate, input_columns=["input_length"])
+    # dataset_test_processed = dataset_test_processed.filter(
+    #     lambda x: x
+    #     < max_input_length_in_sec * processor.feature_extractor.sampling_rate,
+    #     input_columns=["input_length"],
+    # )
 
     data_collator = DataCollatorCTCWithPadding(processor=processor, padding=True)
 
-    wer_metric = load_metric("wer")
+    model_base_name = "facebook/wav2vec2-xls-r-300m"
 
     model = Wav2Vec2ForCTC.from_pretrained(
-        "facebook/wav2vec2-xls-r-300m",
+        model_base_name,
         attention_dropout=0.0,
-        hidden_dropout=0.0,
+        hidden_dropout=0.05,
         feat_proj_dropout=0.0,
         mask_time_prob=0.05,
         layerdrop=0.0,
@@ -233,51 +239,54 @@ if __name__ == "__main__":
         vocab_size=len(processor.tokenizer),
     )
 
-    model.freeze_feature_extractor()
+    model.freeze_feature_encoder()
+
+    checkpoint_dir = "checkpoint_model_XLSR"
 
     training_args = TrainingArguments(
-        output_dir="saved_model_XLS-R",
+        output_dir=checkpoint_dir,
         group_by_length=True,
-        per_device_train_batch_size=16,
-        gradient_accumulation_steps=2,
+        per_device_train_batch_size=6,
+        per_device_eval_batch_size=4,
+        gradient_accumulation_steps=1,
         evaluation_strategy="steps",
-        num_train_epochs=30,
+        num_train_epochs=50,
         gradient_checkpointing=True,
         fp16=True,
-        save_steps=400,
-        eval_steps=400,
-        logging_steps=400,
-        learning_rate=3e-4,
+        save_steps=50,
+        eval_steps=120,
+        logging_steps=300,
+        learning_rate=1e-4,
         warmup_steps=500,
         save_total_limit=2,
     )
 
+    print("-" * 10, "Training", "-" * 10)
     trainer = Trainer(
         model=model,
         data_collator=data_collator,
         args=training_args,
         compute_metrics=compute_metrics,
-        train_dataset=common_voice_train,
-        eval_dataset=common_voice_test,
+        train_dataset=dataset_train_processed,
+        eval_dataset=dataset_test_processed,
         tokenizer=processor.feature_extractor,
     )
 
-    trainer.train()
+    checkpoints = [
+        f
+        for f in os.listdir(checkpoint_dir)
+        if os.path.isdir(os.path.join(checkpoint_dir, f))
+        and f.startswith("checkpoint-")
+    ]
 
-    input_dict = processor(
-        common_voice_test[0]["input_values"], return_tensors="pt", padding=True
-    )
+    if len(checkpoints) > 0:
+        print(f"Checkpoint Found, trying to load it!")
+        resume_training = True
 
-    logits = model(input_dict.input_values.to("cuda")).logits
+    else:
+        print(f"Nessun checkpoint trovato...")
+        resume_training = False
 
-    pred_ids = torch.argmax(logits, dim=-1)[0]
-
-    common_voice_test_transcription = load_dataset(
-        "PolyAI/minds14", name="it-IT", data_dir="dataset_ita_prova", split="test"
-    )
-
-    print("Prediction:")
-    print(processor.decode(pred_ids))
-
-    print("\nReference:")
-    print(common_voice_test_transcription[0]["transcription"].lower())
+    trainer.train(resume_from_checkpoint=resume_training)
+    trainer.save_model("saved_model_final_XLSR")
+    processor.save_pretrained("saved_model_final_XLSR")

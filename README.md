@@ -4,7 +4,7 @@ Progetto per l'esame di Language Processing
 
 ## Modelli
 
-- Modello base addestrato solo in poche lingue
+- Modello base addestrato solo in poche lingue (non italiano)
 
   - [Wav2vec2-base](https://huggingface.co/facebook/wav2vec2-base)
 
@@ -29,3 +29,7 @@ Progetto per l'esame di Language Processing
 - [recording audio in google colab](https://gist.github.com/korakot/c21c3476c024ad6d56d5f48b0bca92be)
 
 - [Github Repo Ufficiale di Wav2Vec2](https://github.com/huggingface/transformers/tree/main/examples/pytorch/speech-recognition)
+
+- [Esempio su come usare file audio per Inference](https://huggingface.co/jonatasgrosman/wav2vec2-large-xlsr-53-english)
+
+# Risultati

@@ -78,12 +78,13 @@ def compute_metrics(pred):
 
 if __name__ == "__main__":
     # dataset
-    minds = load_dataset("PolyAI/minds14", name="it-IT", split="train[:500]")
+    minds = load_dataset("PolyAI/minds14", name="it-IT", split="train")
     # minds = load_dataset("PolyAI/minds14", name="en-US", split="train[:100]")
     minds = minds.train_test_split(test_size=0.2)
     minds = minds.remove_columns(["english_transcription", "intent_class", "lang_id"])
     minds = minds.cast_column("audio", Audio(sampling_rate=16_000))
     minds = minds.map(uppercase)
+
     encoded_minds = minds.map(
         prepare_dataset, remove_columns=minds.column_names["train"], num_proc=4
     )
@@ -103,20 +104,21 @@ if __name__ == "__main__":
 
     # training:
     training_args = TrainingArguments(
-        output_dir="saved_model",
+        output_dir="checkpoint_model_ASR",
         evaluation_strategy="steps",
-        per_device_train_batch_size=4,
+        per_device_train_batch_size=6,
         per_device_eval_batch_size=4,
         gradient_accumulation_steps=2,
-        learning_rate=1e-5,
-        warmup_steps=50,
-        max_steps=50,
+        gradient_checkpointing=True,
+        learning_rate=2e-4,
+        warmup_steps=500,
+        max_steps=400,
         fp16=True,
         group_by_length=True,
-        save_steps=50,
-        eval_steps=5,
+        save_steps=100,
+        eval_steps=100,
         # gradient_checkpointing=True,
-        logging_steps=25,
+        logging_steps=50,
         load_best_model_at_end=True,
         metric_for_best_model="wer",
         greater_is_better=False,
@@ -134,19 +136,9 @@ if __name__ == "__main__":
         compute_metrics=compute_metrics,
     )
 
-    # trainer.train()
+    trainer.train(resume_from_checkpoint = True)
+
+    trainer.save_model("saved_model_final_ASR")
+    processor.save_pretrained("saved_model_final_ASR")
 
     # inferences:
-    dataset = load_dataset("PolyAI/minds14", "en-US", split="train")
-    dataset = dataset.cast_column("audio", Audio(sampling_rate=16000))
-    print(dataset[0]["audio"]["array"])
-    # processor = AutoProcessor.from_pretrained("stevhliu/my_awesome_asr_mind_model")
-    # inputs = processor(
-    #     dataset[0]["audio"]["array"], sampling_rate=sampling_rate, return_tensors="pt"
-    # )
-    # model = AutoModelForCTC.from_pretrained("stevhliu/my_awesome_asr_mind_model")
-    # with torch.no_grad():
-    #     logits = model(**inputs).logits
-
-    # predicted_ids = torch.argmax(logits, dim=-1)
-    # transcription = processor.batch_decode(predicted_ids)
