@@ -32,4 +32,6 @@ Progetto per l'esame di Language Processing
 
 - [Esempio su come usare file audio per Inference](https://huggingface.co/jonatasgrosman/wav2vec2-large-xlsr-53-english)
 
+- [Colab](https://colab.research.google.com/drive/1mlu3WtDwkJp9hWuxhIaXO6LXBxfOBwfR?usp=sharing)
+
 # Risultati

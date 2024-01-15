@@ -10,7 +10,7 @@ import librosa
 import torch
 
 if __name__ == "__main__":
-    model_name_1 = "prova_5000esempi_minds"
+    model_name_1 = "prova_5000esempi_minds_2"
     model_name_2 = "dbdmg/wav2vec2-xls-r-300m-italian"
     model_name_3 = "saved_model_final_ASR"
     # model_name = "dbdmg/wav2vec2-xls-r-300m-italian"
@@ -18,7 +18,7 @@ if __name__ == "__main__":
     inference_type = 2
     transcriber_speech = ""
 
-    audio_file_name = "audio4.opus"
+    audio_file_name = "audio8.opus"
 
     if inference_type == 1:
         processor = Wav2Vec2Processor.from_pretrained(model_name_1)

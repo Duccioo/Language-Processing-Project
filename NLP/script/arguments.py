@@ -27,7 +27,7 @@ class ModelArguments:
     """
 
     model_name_or_path: str = field(
-        default=os.environ["MODEL"]
+        default=str(os.environ["MODEL"])
         if "MODEL" in os.environ
         else "facebook/wav2vec2-xls-r-300m",
         metadata={
@@ -47,7 +47,7 @@ class ModelArguments:
         },
     )
     freeze_feature_encoder: bool = field(
-        default=(os.environ["FREEZE_FEATURE_ENCODER"])
+        default=bool(os.environ["FREEZE_FEATURE_ENCODER"])
         if "FREEZE_FEATURE_ENCODER" in os.environ
         else True,
         metadata={"help": "Whether to freeze the feature encoder layers of the model."},
@@ -133,7 +133,7 @@ class DataTrainingArguments:
     """
 
     dataset_name: str = field(
-        default=(os.environ["DATASET_NAME"])
+        default=str(os.environ["DATASET_NAME"])
         if "DATASET_NAME" in os.environ
         else "mozilla-foundation/common_voice_11_0",
         metadata={
@@ -142,7 +142,7 @@ class DataTrainingArguments:
     )
 
     dataset_config_name: str = field(
-        default=os.environ["DATASET_CONFIG_NAME"]
+        default=str(os.environ["DATASET_CONFIG_NAME"])
         if "DATASET_CONFIG_NAME" in os.environ
         else None,
         metadata={
@@ -150,7 +150,7 @@ class DataTrainingArguments:
         },
     )
     train_split_name: str = field(
-        default=os.environ["TRAIN_SPLIT_NAME"]
+        default=str(os.environ["TRAIN_SPLIT_NAME"])
         if "TRAIN_SPLIT_NAME" in os.environ
         else "train",
         metadata={
@@ -161,7 +161,7 @@ class DataTrainingArguments:
         },
     )
     eval_split_name: str = field(
-        default=os.environ["EVAL_SPLIT_NAME"]
+        default=str(os.environ["EVAL_SPLIT_NAME"])
         if "EVAL_SPLIT_NAME" in os.environ
         else "test",
         metadata={
@@ -169,7 +169,7 @@ class DataTrainingArguments:
         },
     )
     audio_column_name: str = field(
-        default=os.environ["AUDIO_COLUMN_NAME"]
+        default=str(os.environ["AUDIO_COLUMN_NAME"])
         if "AUDIO_COLUMN_NAME" in os.environ
         else "audio",
         metadata={
@@ -177,7 +177,7 @@ class DataTrainingArguments:
         },
     )
     text_column_name: str = field(
-        default=os.environ["TEXT_COLUMN_NAME"]
+        default=str(os.environ["TEXT_COLUMN_NAME"])
         if "TEXT_COLUMN_NAME" in os.environ
         else "text",
         metadata={
@@ -189,13 +189,13 @@ class DataTrainingArguments:
         metadata={"help": "Overwrite the cached preprocessed datasets or not."},
     )
     preprocessing_num_workers: Optional[int] = field(
-        default=os.environ["PREPROCESSING_NUM_WORKERS"]
+        default=int(os.environ["PREPROCESSING_NUM_WORKERS"])
         if "PREPROCESSING_NUM_WORKERS" in os.environ
         else None,
         metadata={"help": "The number of processes to use for the preprocessing."},
     )
     max_train_samples: Optional[int] = field(
-        default=os.environ["MAX_TRAIN_SAMPLES"]
+        default=int(os.environ["MAX_TRAIN_SAMPLES"])
         if "MAX_TRAIN_SAMPLES" in os.environ
         else None,
         metadata={
@@ -206,7 +206,7 @@ class DataTrainingArguments:
         },
     )
     max_eval_samples: Optional[int] = field(
-        default=os.environ["MAX_EVAL_SAMPLES"]
+        default=int(os.environ["MAX_EVAL_SAMPLES"])
         if "MAX_EVAL_SAMPLES" in os.environ
         else None,
         metadata={
@@ -292,7 +292,7 @@ class DataTrainingArguments:
 
 def training_arg_env_replace(training_arg):
     training_arg.output_dir = (
-        (os.environ["OUTPUT_DIR"])
+        str(os.environ["OUTPUT_DIR"])
         if "OUTPUT_DIR" in os.environ and training_arg.output_dir == ""
         else training_arg.output_dir
     )
@@ -332,9 +332,9 @@ def training_arg_env_replace(training_arg):
         else training_arg.warmup_steps
     )
     training_arg.length_column_name = (
-        (os.environ["LENGTH_COLUMN_NAME"])
+        str(os.environ["LENGTH_COLUMN_NAME"])
         if "LENGTH_COLUMN_NAME" in os.environ
-        else training_arg.length_column_name
+        else "input_length"
     )
     training_arg.save_steps = (
         int(os.environ["SAVE_STEPS"])
@@ -372,13 +372,10 @@ def training_arg_env_replace(training_arg):
         else training_arg.resume_from_checkpoint
     )
     training_arg.evaluation_strategy = "steps"
-    
+
     training_arg.fp16 = (
-        bool(os.environ["FP16"])
-        if "FP16" in os.environ
-        else training_arg.fp16
+        bool(os.environ["FP16"]) if "FP16" in os.environ else training_arg.fp16
     )
-    
 
 
 def env_to_cmd_args(env_vars):
