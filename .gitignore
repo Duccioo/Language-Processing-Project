@@ -13,7 +13,7 @@ __pycache__/
 /grammar_design/lark_prof
 
 *.opus
-
+testp_audio.txt
 # Distribution / packaging
 .Python
 build/

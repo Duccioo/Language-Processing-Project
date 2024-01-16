@@ -388,7 +388,7 @@ def training_arg_env_replace(training_arg):
     )
     training_arg.max_steps = int(
         (os.environ["MAX_STEPS"])
-        if "max_steps" in os.environ
+        if "MAX_STEPS" in os.environ
         else training_arg.max_steps
     )
     training_arg.per_device_train_batch_size = int(
