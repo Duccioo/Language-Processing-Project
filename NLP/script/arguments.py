@@ -386,6 +386,11 @@ def training_arg_env_replace(training_arg):
         if "NUM_TRAIN_EPOCHS" in os.environ
         else training_arg.num_train_epochs
     )
+    training_arg.max_steps = int(
+        (os.environ["MAX_STEPS"])
+        if "max_steps" in os.environ
+        else training_arg.max_steps
+    )
     training_arg.per_device_train_batch_size = int(
         (os.environ["PER_DEVICE_TRAIN_BATCH_SIZE"])
         if "PER_DEVICE_TRAIN_BATCH_SIZE" in os.environ

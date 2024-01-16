@@ -17,17 +17,18 @@ import torch
 
 def main():
     model_name_list = [
+        "results\model\ctc_500esempi_minds",
         "results\model\ctc_5000esempi_mozilla",
         "dbdmg/wav2vec2-xls-r-300m-italian",
         "saved_model_final_ASR",
         "openai/whisper-tiny",
         "results\model\seq2seq_prova",
     ]
-    model_name = model_name_list[1]
-    model_type = 1  # 1->CTC, 2->Seq2Seq
+    model_name = model_name_list[5]
+    model_type = 2  # 1->CTC, 2->Seq2Seq
     transcriber_speech = ""
 
-    audio_file_name = "audio8.opus"
+    audio_file_name = "audio.wav"
 
     # if inference_type == 1:
     #     processor = Wav2Vec2Processor.from_pretrained(model_name)
@@ -68,6 +69,7 @@ def main():
         input_features = processor(
             speech, sampling_rate=16000, return_tensors="pt"
         ).input_features
+        
         predicted_ids = model.generate(
             input_features, forced_decoder_ids=forced_decoder_ids
         )
