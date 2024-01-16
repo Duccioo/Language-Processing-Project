@@ -153,9 +153,7 @@ def main():
                 f"Output directory ({training_args.output_dir}) already exists and is not empty. "
                 "Use --overwrite_output_dir to overcome."
             )
-        elif (
-            last_checkpoint is not None and training_args.resume_from_checkpoint is None
-        ):
+        elif last_checkpoint is not None:
             logger.info(
                 f"Checkpoint detected, resuming training at {last_checkpoint}. To avoid this behavior, change "
                 "the `--output_dir` or add `--overwrite_output_dir` to train from scratch."
@@ -173,7 +171,7 @@ def main():
             data_args.dataset_config_name,
             split=data_args.train_split_name,
             cache_dir=model_args.cache_dir,
-            token=model_args.token,
+            token=data_args.token,
         )
 
     if training_args.do_eval:
@@ -182,7 +180,7 @@ def main():
             data_args.dataset_config_name,
             split=data_args.eval_split_name,
             cache_dir=model_args.cache_dir,
-            token=model_args.token,
+            token=data_args.token,
         )
 
     if (
@@ -207,13 +205,11 @@ def main():
     # Distributed training:
     # The .from_pretrained methods guarantee that only one local process can concurrently
     config = AutoConfig.from_pretrained(
-        model_args.config_name
-        if model_args.config_name
-        else model_args.model_name_or_path,
+        model_args.config_name if model_args.config_name else model_args.model_name,
         cache_dir=model_args.cache_dir,
         revision=model_args.model_revision,
-        token=model_args.token,
-        trust_remote_code=model_args.trust_remote_code,
+        token=data_args.token,
+        trust_remote_code=data_args.trust_remote_code,
     )
 
     config.update(
@@ -230,29 +226,29 @@ def main():
     feature_extractor = AutoFeatureExtractor.from_pretrained(
         model_args.feature_extractor_name
         if model_args.feature_extractor_name
-        else model_args.model_name_or_path,
+        else model_args.model_name,
         cache_dir=model_args.cache_dir,
         revision=model_args.model_revision,
-        token=model_args.token,
-        trust_remote_code=model_args.trust_remote_code,
+        token=data_args.token,
+        trust_remote_code=data_args.trust_remote_code,
     )
     tokenizer = AutoTokenizer.from_pretrained(
-        model_args.tokenizer_name
-        if model_args.tokenizer_name
-        else model_args.model_name_or_path,
+        model_args.tokenizer_name_or_path
+        if model_args.tokenizer_name_or_path
+        else model_args.model_name,
         cache_dir=model_args.cache_dir,
         use_fast=model_args.use_fast_tokenizer,
         revision=model_args.model_revision,
-        token=model_args.token,
-        trust_remote_code=model_args.trust_remote_code,
+        token=data_args.token,
+        trust_remote_code=data_args.trust_remote_code,
     )
     model = AutoModelForSpeechSeq2Seq.from_pretrained(
-        model_args.model_name_or_path,
+        model_args.model_name,
         config=config,
         cache_dir=model_args.cache_dir,
         revision=model_args.model_revision,
-        token=model_args.token,
-        trust_remote_code=model_args.trust_remote_code,
+        token=data_args.token,
+        trust_remote_code=data_args.trust_remote_code,
     )
 
     if model.config.decoder_start_token_id is None:
@@ -260,8 +256,8 @@ def main():
             "Make sure that `config.decoder_start_token_id` is correctly defined"
         )
 
-    if model_args.freeze_feature_encoder:
-        model.freeze_feature_encoder()
+    # if model_args.freeze_feature_encoder:
+    #     model.freeze_feature_encoder()
 
     if model_args.freeze_encoder:
         model.freeze_encoder()
@@ -377,9 +373,9 @@ def main():
         # we do not want to group tokens when computing the metrics
         label_str = tokenizer.batch_decode(pred.label_ids, skip_special_tokens=True)
 
-        wer = metric.compute(predictions=pred_str, references=label_str)
+        wer_1 = metric.compute(predictions=pred_str, references=label_str)
 
-        return {"wer": wer}
+        return {"wer": wer_1}
 
     # 9. Create a single speech processor
     # make sure all processes wait until data is saved
@@ -416,10 +412,16 @@ def main():
     # 12. Training
     if training_args.do_train:
         checkpoint = None
-        if training_args.resume_from_checkpoint is not None:
-            checkpoint = training_args.resume_from_checkpoint
-        elif last_checkpoint is not None:
+        # if training_args.resume_from_checkpoint is not None:
+        #     checkpoint = training_args.resume_from_checkpoint
+        # elif last_checkpoint is not None:
+        #     checkpoint = last_checkpoint
+        if last_checkpoint is not None:
             checkpoint = last_checkpoint
+        elif os.path.isdir(model_args.model_name):
+            checkpoint = model_args.model_name
+        else:
+            checkpoint = None
         train_result = trainer.train(resume_from_checkpoint=checkpoint)
         trainer.save_model()  # Saves the feature extractor too for easy upload
 
@@ -459,7 +461,7 @@ def main():
 
     # 14. Write Training Stats
     kwargs = {
-        "finetuned_from": model_args.model_name_or_path,
+        "finetuned_from": model_args.model_name,
         "tasks": "automatic-speech-recognition",
     }
     if data_args.dataset_name is not None:

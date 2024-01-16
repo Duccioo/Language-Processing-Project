@@ -303,7 +303,7 @@ def main():
     # the tokenizer
     # load config
     config = AutoConfig.from_pretrained(
-        model_args.model_name_or_path,
+        model_args.model_name,
         cache_dir=model_args.cache_dir,
         token=data_args.token,
         trust_remote_code=data_args.trust_remote_code,
@@ -369,7 +369,7 @@ def main():
         **tokenizer_kwargs,
     )
     feature_extractor = AutoFeatureExtractor.from_pretrained(
-        model_args.model_name_or_path,
+        model_args.model_name,
         cache_dir=model_args.cache_dir,
         token=data_args.token,
         trust_remote_code=data_args.trust_remote_code,
@@ -397,7 +397,7 @@ def main():
 
     # create model
     model = AutoModelForCTC.from_pretrained(
-        model_args.model_name_or_path,
+        model_args.model_name,
         cache_dir=model_args.cache_dir,
         config=config,
         token=data_args.token,
@@ -549,8 +549,8 @@ def main():
         # use last checkpoint if exist
         if last_checkpoint is not None:
             checkpoint = last_checkpoint
-        elif os.path.isdir(model_args.model_name_or_path):
-            checkpoint = model_args.model_name_or_path
+        elif os.path.isdir(model_args.model_name):
+            checkpoint = model_args.model_name
         else:
             checkpoint = None
 
@@ -595,7 +595,7 @@ def main():
         else "na"
     )
     kwargs = {
-        "finetuned_from": model_args.model_name_or_path,
+        "finetuned_from": model_args.model_name,
         "tasks": "automatic-speech-recognition",
         "tags": ["automatic-speech-recognition", data_args.dataset_name],
         "dataset_args": (

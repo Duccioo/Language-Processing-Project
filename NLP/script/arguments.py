@@ -26,7 +26,7 @@ class ModelArguments:
     Arguments pertaining to which model/config/tokenizer we are going to fine-tune from.
     """
 
-    model_name_or_path: str = field(
+    model_name: str = field(
         default=str(os.environ["MODEL"])
         if "MODEL" in os.environ
         else "facebook/wav2vec2-xls-r-300m",
@@ -34,10 +34,28 @@ class ModelArguments:
             "help": "Path to pretrained model or model identifier from huggingface.co/models"
         },
     )
+    config_name: Optional[str] = field(
+        default=None,
+        metadata={
+            "help": "Pretrained config name or path if not the same as model_name"
+        },
+    )
+    model_revision: str = field(
+        default="main",
+        metadata={
+            "help": "The specific model version to use (can be a branch name, tag name or commit id)."
+        },
+    )
     tokenizer_name_or_path: Optional[str] = field(
         default=None,
         metadata={
             "help": "Path to pretrained tokenizer or tokenizer identifier from huggingface.co/models"
+        },
+    )
+    use_fast_tokenizer: bool = field(
+        default=True,
+        metadata={
+            "help": "Whether to use one of the fast tokenizer (backed by the tokenizers library) or not."
         },
     )
     cache_dir: Optional[str] = field(
@@ -147,6 +165,12 @@ class ModelArguments:
         else False,
         metadata={
             "help": "Whether to apply *SpecAugment* data augmentation to the input features. This is currently only relevant for Wav2Vec2, HuBERT, WavLM and Whisper models."
+        },
+    )
+    feature_extractor_name: Optional[str] = field(
+        default=None,
+        metadata={
+            "help": "feature extractor name or path if not the same as model_name"
         },
     )
 
@@ -285,8 +309,11 @@ class DataTrainingArguments:
             )
         },
     )
+
     token: str = field(
-        default=None,
+        default=str(os.environ["HUGGING_FACE_TOKEN"])
+        if "HUGGING_FACE_TOKEN" in os.environ
+        else None,
         metadata={
             "help": (
                 "The token to use as HTTP bearer authorization for remote files. If not specified, will use the token "
@@ -294,6 +321,15 @@ class DataTrainingArguments:
             )
         },
     )
+    # token: str = field(
+    #     default=None,
+    #     metadata={
+    #         "help": (
+    #             "The token to use as HTTP bearer authorization for remote files. If not specified, will use the token "
+    #             "generated when running `huggingface-cli login` (stored in `~/.huggingface`)."
+    #         )
+    #     },
+    # )
 
     trust_remote_code: bool = field(
         default=True,
@@ -410,11 +446,11 @@ def training_arg_env_replace(training_arg):
         if "GROUP_BY_LENGTH" in os.environ
         else training_arg.group_by_length
     )
-    training_arg.freeze_feature_encoder = (
-        bool(os.environ["FREEZE_FEATURE_ENCODER"])
-        if "FREEZE_FEATURE_ENCODER" in os.environ
-        else training_arg.freeze_feature_encoder
-    )
+    # training_arg.freeze_feature_encoder = (
+    #     bool(os.environ["FREEZE_FEATURE_ENCODER"])
+    #     if "FREEZE_FEATURE_ENCODER" in os.environ
+    #     else training_arg.freeze_feature_encoder
+    # )
     training_arg.resume_from_checkpoint = (
         bool(os.environ["RESUME_FROM_CHECKPOINT"])
         if "RESUME_FROM_CHECKPOINT" in os.environ
