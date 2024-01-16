@@ -121,6 +121,35 @@ class ModelArguments:
         },
     )
 
+    freeze_encoder: bool = field(
+        default=bool(os.environ["FREEZE_ENCODER"])
+        if "FREEZE_ENCODER" in os.environ
+        else False,
+        metadata={"help": "Whether to freeze the entire encoder of the seq2seq model."},
+    )
+    forced_decoder_ids: List[List[int]] = field(
+        default=None,
+        metadata={
+            "help": (
+                "A list of pairs of integers which indicates a mapping from generation indices to token indices "
+                "that will be forced before sampling. For example, [[0, 123]] means the first generated token "
+                "will always be a token of index 123."
+            )
+        },
+    )
+    suppress_tokens: List[int] = field(
+        default=None,
+        metadata={"help": "A list of tokens that will be suppressed at generation."},
+    )
+    apply_spec_augment: bool = field(
+        default=bool(os.environ["APPLY_SPEC_AUGMENT"])
+        if "APPLY_SPEC_AUGMENT" in os.environ
+        else False,
+        metadata={
+            "help": "Whether to apply *SpecAugment* data augmentation to the input features. This is currently only relevant for Wav2Vec2, HuBERT, WavLM and Whisper models."
+        },
+    )
+
 
 @dataclass
 class DataTrainingArguments:
@@ -287,6 +316,26 @@ class DataTrainingArguments:
     word_delimiter_token: str = field(
         default="|",
         metadata={"help": "The word delimiter token for the tokenizer"},
+    )
+
+    do_lower_case: bool = field(
+        default=True,
+        metadata={"help": "Whether the target text should be lower cased."},
+    )
+    language: str = field(
+        default=str(os.environ["LANGUAGE"]) if "LANGUAGE" in os.environ else None,
+        metadata={
+            "help": (
+                "Language for multilingual fine-tuning. This argument should be set for multilingual fine-tuning "
+                "only. For English speech recognition, it should be set to `None`."
+            )
+        },
+    )
+    task: str = field(
+        default="transcribe",
+        metadata={
+            "help": "Task, either `transcribe` for speech recognition or `translate` for speech translation."
+        },
     )
 
 

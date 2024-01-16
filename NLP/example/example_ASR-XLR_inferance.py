@@ -10,7 +10,7 @@ import librosa
 import torch
 
 if __name__ == "__main__":
-    model_name_1 = "prova_5000esempi_minds_2"
+    model_name_1 = "prova_5000esempi_mozilla"
     model_name_2 = "dbdmg/wav2vec2-xls-r-300m-italian"
     model_name_3 = "saved_model_final_ASR"
     # model_name = "dbdmg/wav2vec2-xls-r-300m-italian"
@@ -39,8 +39,8 @@ if __name__ == "__main__":
 
     # test 2
     elif inference_type == 2:
-        wav2vec2_processor = Wav2Vec2Processor.from_pretrained(model_name_1)
-        wav2vec2_model = Wav2Vec2ForCTC.from_pretrained(model_name_1)
+        wav2vec2_processor = Wav2Vec2Processor.from_pretrained(model_name_2)
+        wav2vec2_model = Wav2Vec2ForCTC.from_pretrained(model_name_2)
 
         file_name = audio_file_name
         speech, sr = librosa.load(file_name, sr=16000)

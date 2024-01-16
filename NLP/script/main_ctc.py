@@ -166,9 +166,6 @@ def create_vocabulary_from_data(
 
 
 def main():
-    # telegram_callback = TelegramCallback(token="5487638486:AAFpT6FgHUli5FIC8VQlul8gc3znhR7rI8I", chat_id="185857885")
-    # See all possible arguments in src/transformers/training_args.py
-    # or by passing the --help flag to this script.
     # We now keep distinct sets of args, for a cleaner separation of concerns.
 
     parser = HfArgumentParser(
@@ -437,9 +434,6 @@ def main():
     )
     audio_column_name = data_args.audio_column_name
     num_workers = data_args.preprocessing_num_workers
-
-    # # `phoneme_language` is only relevant if the model is fine-tuned on phoneme classification
-    # phoneme_language = data_args.phoneme_language
 
     # Preprocessing the datasets.
     # We need to read the audio files as arrays and tokenize the targets.
