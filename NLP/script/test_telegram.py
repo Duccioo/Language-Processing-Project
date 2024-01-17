@@ -13,9 +13,14 @@ from transformers import (
 
 import librosa
 import torch
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 
 # Inserisci il tuo token ottenuto da BotFather
-TOKEN = "6941788422:AAFV-jYkmsmDZGha_2wn6Afu81EKITi0Jlw"
+TOKEN = os.environ["TELEGRAM_TOKEN"]
 
 # Creazione dell'istanza del bot
 bot = telebot.TeleBot(TOKEN)
