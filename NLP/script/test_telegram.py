@@ -3,10 +3,13 @@ from pydub import AudioSegment
 import io
 import speech_recognition as sr
 import requests
+from transformers import pipeline
 
 from transformers import (
     Wav2Vec2ForCTC,
     Wav2Vec2Processor,
+    WhisperProcessor,
+    WhisperForConditionalGeneration,
 )
 
 # from datasets import Audio, load_dataset
@@ -69,17 +72,46 @@ def transcribe_audio_base(audio_data):
 
 
 def transcribe_audio_NLP(audio_data):
-    model_name = "dbdmg/wav2vec2-xls-r-300m-italian"
-    wav2vec2_processor = Wav2Vec2Processor.from_pretrained(model_name)
-    wav2vec2_model = Wav2Vec2ForCTC.from_pretrained(model_name)
+    # model_name = "dbdmg/wav2vec2-xls-r-300m-italian"
 
-    speech, sr = librosa.load(io.BytesIO(audio_data), sr=16000)
-    input_values = wav2vec2_processor(speech, sampling_rate=16000, return_tensors="pt")
+    model_name = "openai/whisper-tiny"
 
-    with torch.no_grad():
-        logits = wav2vec2_model(**input_values).logits
-    pred_ids = torch.argmax(logits, dim=-1)
-    transcribed_speech = wav2vec2_processor.batch_decode(pred_ids)
+    model_type = 2
+
+    if model_type == 1:
+        wav2vec2_processor = Wav2Vec2Processor.from_pretrained(model_name)
+        wav2vec2_model = Wav2Vec2ForCTC.from_pretrained(model_name)
+
+        speech, sr = librosa.load(io.BytesIO(audio_data), sr=16000)
+        input_values = wav2vec2_processor(
+            speech, sampling_rate=16000, return_tensors="pt"
+        )
+
+        with torch.no_grad():
+            logits = wav2vec2_model(**input_values).logits
+        pred_ids = torch.argmax(logits, dim=-1)
+        transcribed_speech = wav2vec2_processor.batch_decode(pred_ids)
+
+    elif model_type == 2:
+        # seq2seq
+        processor = WhisperProcessor.from_pretrained(model_name)
+        model = WhisperForConditionalGeneration.from_pretrained(model_name)
+        forced_decoder_ids = processor.get_decoder_prompt_ids(
+            language="italian", task="transcribe"
+        )
+        speech, sr = librosa.load(io.BytesIO(audio_data), sr=16000)
+
+        input_features = processor(
+            speech, sampling_rate=16000, return_tensors="pt"
+        ).input_features
+
+        predicted_ids = model.generate(
+            input_features, forced_decoder_ids=forced_decoder_ids
+        )
+        transcribed_speech = processor.batch_decode(
+            predicted_ids, skip_special_tokens=True
+        )
+
     return transcribed_speech[0]
 
 

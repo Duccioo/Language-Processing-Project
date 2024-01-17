@@ -24,7 +24,7 @@ def main():
         "openai/whisper-tiny",
         "results\model\seq2seq_prova",
     ]
-    model_name = model_name_list[5]
+    model_name = model_name_list[4]
     model_type = 2  # 1->CTC, 2->Seq2Seq
     transcriber_speech = ""
 
