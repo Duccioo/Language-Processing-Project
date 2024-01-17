@@ -19,13 +19,14 @@ def main():
     model_name_list = [
         "results\model\ctc_500esempi_minds",
         "results\model\ctc_5000esempi_mozilla",
+        "results\model\seq2seq_prova",
         "dbdmg/wav2vec2-xls-r-300m-italian",
         "saved_model_final_ASR",
         "openai/whisper-tiny",
         "results\model\seq2seq_prova",
     ]
-    model_name = model_name_list[4]
-    model_type = 2  # 1->CTC, 2->Seq2Seq
+    model_name = model_name_list[0]
+    model_type = 1  # 1->CTC, 2->Seq2Seq
     transcriber_speech = ""
 
     audio_file_name = "audio.wav"
@@ -69,7 +70,7 @@ def main():
         input_features = processor(
             speech, sampling_rate=16000, return_tensors="pt"
         ).input_features
-        
+
         predicted_ids = model.generate(
             input_features, forced_decoder_ids=forced_decoder_ids
         )
@@ -86,6 +87,18 @@ def main():
         )
         speech, sr = librosa.load(audio_file_name, sr=16000)
         transcribed_speech = pipe(speech, batch_size=8)["text"]
+
+    elif model_type == 4:
+        transcriber = pipeline(
+            "automatic-speech-recognition",
+            model=model_name,
+            tokenizer=model_name,
+            chunk_length_s=30,
+        )
+        speech, sr = librosa.load(audio_file_name, sr=16000)
+        # transcribed_speech = pipe(speech, batch_size=8)["text"]
+
+        transcribed_speech = transcriber(speech, batch_size=8)
 
     print(transcribed_speech)
 
