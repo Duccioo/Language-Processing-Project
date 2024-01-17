@@ -6,22 +6,11 @@ import requests
 from transformers import pipeline
 
 from transformers import (
-    Wav2Vec2ForCTC,
-    Wav2Vec2Processor,
-    WhisperProcessor,
-    WhisperForConditionalGeneration,
     AutoModelForSeq2SeqLM,
     AutoTokenizer,
 )
 
-
-# from transformers import
-# from transformers import AutoTokenizer
-
-# from datasets import Audio, load_dataset
-
 import librosa
-import torch
 from dotenv import load_dotenv
 import os
 

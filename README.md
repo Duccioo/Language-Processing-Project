@@ -74,3 +74,10 @@ Sono stati utilizzati 3 dataset differenti:
 - [CallBacks for Transformer Library](https://huggingface.co/docs/transformers/main_classes/callback)
 
 ### Risultati
+
+### Training results:
+
+|       Model       | Training Loss | Epoch | Step | Validation Loss |  Wer   |
+| :---------------: | :-----------: | :---: | :--: | :-------------: | :----: |
+|   ctc 500 minds   |    0.0175     | 99.46 | 2900 |     0.5244      | 0.3319 |
+| seq2seq 500 minds |    No log     | 24.71 | 420  |     0.6700      | 0.2459 |
