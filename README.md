@@ -1,4 +1,4 @@
-<img src="./image_bot.jpg" width=200 height=200 align="right">
+<img src="image_bot.jpeg" width=200 height=200 align="right">
 
 # Language Processing Project
 
