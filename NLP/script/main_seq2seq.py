@@ -362,7 +362,9 @@ def main():
         return
 
     # 8. Load Metric
-    metric = evaluate.load("wer", cache_dir=model_args.cache_dir)
+    # metric = evaluate.load("wer", cache_dir=model_args.cache_dir)
+    # Define evaluation metrics during training, *i.e.* word error rate, character error rate
+    eval_metrics = {metric: evaluate.load(metric) for metric in data_args.eval_metrics}
 
     def compute_metrics(pred):
         pred_ids = pred.predictions
@@ -373,9 +375,14 @@ def main():
         # we do not want to group tokens when computing the metrics
         label_str = tokenizer.batch_decode(pred.label_ids, skip_special_tokens=True)
 
-        wer_1 = metric.compute(predictions=pred_str, references=label_str)
+        # wer_1 = metric.compute(predictions=pred_str, references=label_str)
+        # print("PATATE A ROSTOOOOOOO")
+        metrics = {
+            k: v.compute(predictions=pred_str, references=label_str)
+            for k, v in eval_metrics.items()
+        }
 
-        return {"wer": wer_1}
+        return metrics
 
     # 9. Create a single speech processor
     # make sure all processes wait until data is saved
