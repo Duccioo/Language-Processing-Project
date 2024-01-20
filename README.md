@@ -1,6 +1,6 @@
-<img src="image_bot.jpg" width=200 height=200 align="right">
-
 # Language Processing Project
+
+<img src="image_bot.jpeg" style="border-radius: 40%;" alt="Transcribot Image" width=200 height=200 align="right" >
 
 Project for the Language Processing exam.
 
@@ -97,6 +97,8 @@ Dataets used:
 |  seq2seq small 500 minds   |    No log     | 24.71 | 420  |     0.6700      | 0.2459 |
 | seq2seq base 7000 common11 |    0.0046     | 9.13  | 2000 |     0.6976      | 0.3188 |
 |     ctc 7000 common11      |    0.0967     | 9.13  | 2000 |     0.2142      | 0.1859 |
+| seq2seq tiny 7000 common16 |    0.0059     | 9.13  | 2000 |     0.8071      | 0.3797 |
+|     ctc 7000 common16      |    0.1011     | 9.13  | 2000 |     0.2198      | 0.1835 |
 
 ### Link Utili
 
