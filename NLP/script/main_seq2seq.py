@@ -375,8 +375,6 @@ def main():
         # we do not want to group tokens when computing the metrics
         label_str = tokenizer.batch_decode(pred.label_ids, skip_special_tokens=True)
 
-        # wer_1 = metric.compute(predictions=pred_str, references=label_str)
-        # print("PATATE A ROSTOOOOOOO")
         metrics = {
             k: v.compute(predictions=pred_str, references=label_str)
             for k, v in eval_metrics.items()
@@ -419,10 +417,6 @@ def main():
     # 12. Training
     if training_args.do_train:
         checkpoint = None
-        # if training_args.resume_from_checkpoint is not None:
-        #     checkpoint = training_args.resume_from_checkpoint
-        # elif last_checkpoint is not None:
-        #     checkpoint = last_checkpoint
         if last_checkpoint is not None:
             checkpoint = last_checkpoint
         elif os.path.isdir(model_args.model_name):
