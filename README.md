@@ -87,20 +87,20 @@ Dataets used:
   - [Versione 16](https://huggingface.co/datasets/mozilla-foundation/common_voice_16_0)
 - [Google/fleurs](https://huggingface.co/datasets/google/fleurs)
 
-### Risultati
-
 ### Training results:
 
-|           Model            | Training Loss | Epoch | Step | Validation Loss |  Wer   |
-| :------------------------: | :-----------: | :---: | :--: | :-------------: | :----: |
-|       ctc 500 minds        |    0.0175     | 99.46 | 2900 |     0.5244      | 0.3319 |
-|  seq2seq small 500 minds   |    No log     | 24.71 | 420  |     0.6700      | 0.2459 |
-| seq2seq base 7000 common11 |    0.0046     | 9.13  | 2000 |     0.6976      | 0.3188 |
-|     ctc 7000 common11      |    0.0967     | 9.13  | 2000 |     0.2142      | 0.1859 |
-| seq2seq tiny 7000 common16 |    0.0059     | 9.13  | 2000 |     0.8071      | 0.3797 |
-|     ctc 7000 common16      |    0.1011     | 9.13  | 2000 |     0.2198      | 0.1835 |
+|         Model         | train examples | Training Loss | Epoch | Step | Validation Loss | Wer    |
+| :-------------------: | :------------: | :-----------: | :---: | :--: | :-------------: | ------ |
+|  seq2seq tiny minds   |      300       |    0.07186    |  105  | 1000 |     0.0001      | 0.5296 |
+|       ctc minds       |      500       |    0.0175     | 99.46 | 2900 |     0.5244      | 0.3319 |
+|  seq2seq small minds  |      500       |    No log     | 24.71 | 420  |     0.6700      | 0.2459 |
+| seq2seq small fleurs  |      3000      |    0.0003     | 21.05 | 2000 |     0.3992      | 0.1394 |
+| seq2seq base common11 |      7000      |    0.0046     | 9.13  | 2000 |     0.6976      | 0.3188 |
+|     ctc common11      |      7000      |    0.0967     | 9.13  | 2000 |     0.2142      | 0.1859 |
+| seq2seq tiny common16 |      7000      |    0.0059     | 9.13  | 2000 |     0.8071      | 0.3797 |
+|     ctc common16      |      7000      |    0.1011     | 9.13  | 2000 |     0.2198      | 0.1835 |
 
-### Link Utili
+### Resurces
 
 - [Github Repo Ufficiale ASR](https://github.com/huggingface/transformers/tree/main/examples/pytorch/speech-recognition)
 
