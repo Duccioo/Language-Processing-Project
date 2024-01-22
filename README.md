@@ -1,6 +1,6 @@
 # Language Processing Project
 
-<img src="image_bot.jpeg" style="border-radius: 40%;" alt="Transcribot Image" width=200 height=200 align="right" >
+<img src="content/image_bot.jpeg" style="border-radius: 40%;" alt="Transcribot Image" width=200 height=200 align="right" >
 
 Project for the Language Processing exam.
 
