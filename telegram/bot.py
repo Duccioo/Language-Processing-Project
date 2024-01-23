@@ -67,20 +67,24 @@ def transcribe_audio_speculative(
     audio_data,
     model_name: str = "openai/whisper-small",
     assistant_model_name: str = "openai/whisper-tiny",
+    cache_dir: str = "models",
 ):
     torch_dtype = torch.float32
     speech, sr = librosa.load(io.BytesIO(audio_data), sr=16000)
 
     start_time = time.time()
-
     model = AutoModelForSpeechSeq2Seq.from_pretrained(
         model_name,
         torch_dtype=torch_dtype,
         low_cpu_mem_usage=True,
         use_safetensors=True,
         attn_implementation="sdpa",
+        cache_dir=cache_dir,
     )
-    processor = AutoProcessor.from_pretrained(model_name)
+    processor = AutoProcessor.from_pretrained(
+        model_name,
+        cache_dir=cache_dir,
+    )
 
     assistant_model = WhisperForConditionalGeneration.from_pretrained(
         assistant_model_name,
@@ -88,6 +92,7 @@ def transcribe_audio_speculative(
         low_cpu_mem_usage=True,
         use_safetensors=True,
         attn_implementation="sdpa",
+        cache_dir=cache_dir,
     )
 
     inputs = processor(speech, sampling_rate=16000, return_tensors="pt")
@@ -108,22 +113,15 @@ def transcribe_audio_speculative(
     return transcribed_speech, generation_time
 
 
-def summary(text: str, model_summary: str = "efederici/it5-base-summarization"):
-    """
-    Generates a summary of the given text using the T5 model for Italian summarization.
-
-    Parameters:
-        text (str): The text to be summarized.
-
-    Returns:
-        str: The generated summary of the text.
-    """
-
-    tokenizer = AutoTokenizer.from_pretrained(model_summary)
+def summary(
+    text: str,
+    model_summary: str = "efederici/it5-base-summarization",
+    cache_dir: str = "./model",
+):
+    tokenizer = AutoTokenizer.from_pretrained(model_summary, cache_dir=cache_dir)
+    model = AutoModelForSeq2SeqLM.from_pretrained(model_summary, cache_dir=cache_dir)
 
     inputs = tokenizer(text, return_tensors="pt")
-
-    model = AutoModelForSeq2SeqLM.from_pretrained(model_summary)
 
     outputs = model.generate(
         inputs["input_ids"],
@@ -140,6 +138,17 @@ def summary(text: str, model_summary: str = "efederici/it5-base-summarization"):
 
 
 def add_return(stringa, frequency: int = 3, char: str = "<br>"):
+    """
+    Concatenates a string with a given character at certain intervals.
+
+    Args:
+        stringa (str): The input string to be modified.
+        frequency (int): The frequency at which the character should be added (default is 3).
+        char (str): The character to be added at the specified frequency (default is "<br>").
+
+    Returns:
+        str: The modified string.
+    """
     nuova_stringa = ""
     for i in range(len(stringa)):
         nuova_stringa += stringa[i]
@@ -150,11 +159,16 @@ def add_return(stringa, frequency: int = 3, char: str = "<br>"):
     return nuova_stringa
 
 
-def transcribe_audio_long(audio_data, message, model_size: str = "large-v3"):
+def transcribe_audio_long(
+    audio_data,
+    message,
+    model_size: str = "large-v3",
+    model_summary: str = "efederici/it5-base-summarization",
+    cache_dir: str = "models",
+):
     # Crea un account Telegraph
     # telegraph_account = telegraph.api.create_account(short_name="Prova duccio")
     tph = Telegraph()
-
     tph.create_account(short_name="pp*", author_name="o", author_url="")
 
     msg = bot.send_message(
@@ -168,7 +182,7 @@ def transcribe_audio_long(audio_data, message, model_size: str = "large-v3"):
         model_size,
         compute_type="int8",
         cpu_threads=2,
-        download_root="../../results/model",
+        download_root=cache_dir,
         num_workers=2,
     )
     segments, _ = model.transcribe(
@@ -194,7 +208,9 @@ def transcribe_audio_long(audio_data, message, model_size: str = "large-v3"):
 
     text_segments_wspaces = add_return(text_segments)
 
-    summary_text = summary(text_segments)
+    summary_text = summary(
+        text_segments, model_summary=model_summary, cache_dir=cache_dir
+    )
 
     bot.delete_message(message.chat.id, msg.message_id)
 
@@ -235,7 +251,18 @@ def send_welcome(message):
 @bot.message_handler(content_types=["voice", "audio"])
 def handle_voice_message(message):
     # Ottieni i dati audio dal messaggio
-    # print(message)
+
+    summary_text = ""
+    speculative_model_name = os.environ["TELEGRAM_BIG_MODEL"]
+    speculative_assistant_model_name = os.environ["TELEGRAM_SMALL_MODEL"]
+    faster_model_name = os.environ["TELEGRAM_FASTER_MODEL"]
+    summary_model_name = os.environ["TELEGRAM_SUMMARY_MODEL"]
+    download_dir = (
+        os.environ["TELEGRAM_DOWNLOAD_DIR"]
+        if "TELEGRAM_DOWNLOAD_DIR" in os.environ
+        else "models"
+    )
+
     if message.content_type == "voice":
         message_info = message.voice
         file_info = bot.get_file(message.voice.file_id)
@@ -249,21 +276,21 @@ def handle_voice_message(message):
         f"https://api.telegram.org/file/bot{TOKEN}/{file_info.file_path}"
     )
 
-    summary_text = ""
-
-    speculative_model_name = os.environ["TELEGRAM_BIG_MODEL"]
-    speculative_assistant_model_name = os.environ["TELEGRAM_SMALL_MODEL"]
-    faster_model_name = os.environ["TELEGRAM_FASTER_MODEL"]
-    # faster_model_name = "large-v1"
-
     # Ottieni la trascrizione
     if duration > 30:
         transcription, time_in, summary_text = transcribe_audio_long(
-            audio_data, message, model_size=faster_model_name
+            audio_data,
+            message,
+            model_size=faster_model_name,
+            model_summary=summary_model_name,
+            cache_dir=download_dir,
         )
     else:
         transcription, time_in = transcribe_audio_speculative(
-            audio_data, speculative_model_name, speculative_assistant_model_name
+            audio_data,
+            speculative_model_name,
+            speculative_assistant_model_name,
+            cache_dir=download_dir,
         )
 
     reply_text = generate_reply_text(transcription, time_in, summary_text)

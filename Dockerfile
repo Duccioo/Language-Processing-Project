@@ -25,8 +25,8 @@ COPY telegram/ app/telegram/
 
 RUN useradd -m transcriber
 RUN chown -R transcriber app/telegram/
-RUN mkdir app/media
-RUN chown -R transcriber app/media/
+RUN mkdir app/models
+RUN chown -R transcriber app/models/
 
 USER transcriber
 
