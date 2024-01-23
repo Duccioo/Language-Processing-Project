@@ -1,0 +1,8 @@
+datasets
+pyTelegramBotAPI
+python-dotenv
+transformers
+librosa
+faster_whisper
+torch
+telegraph

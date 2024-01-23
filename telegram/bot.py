@@ -1,11 +1,19 @@
-import telebot
-from pydub import AudioSegment
+import os
+import time
 import io
-
-# import speech_recognition as sr
 import requests
-from transformers import pipeline
 
+import librosa
+from dotenv import load_dotenv
+
+# telegram
+import telebot
+from telegraph import Telegraph
+
+
+# AI
+
+from transformers import pipeline
 from transformers import (
     AutoModelForSeq2SeqLM,
     AutoTokenizer,
@@ -13,19 +21,11 @@ from transformers import (
     AutoProcessor,
     WhisperForConditionalGeneration,
 )
-
 import torch
-import librosa
-from dotenv import load_dotenv
-import os
-
-import time
-
 from faster_whisper import WhisperModel
 
-
+# carico variabili d'ambiente
 load_dotenv()
-
 
 # Inserisci il tuo token ottenuto da BotFather
 TOKEN = os.environ["TELEGRAM_TOKEN"]
@@ -63,26 +63,27 @@ def download_content(url):
         return None
 
 
-def transcribe_audio_speculative(audio_data):
+def transcribe_audio_speculative(
+    audio_data,
+    model_name: str = "openai/whisper-small",
+    assistant_model_name: str = "openai/whisper-tiny",
+):
     torch_dtype = torch.float32
-    # model_id = "openai/whisper-small"
-    # model_id = "results\model\seq2seq_base_common11_7000"
-    assistant_model_id = "results\model\seq2seq_tiny_common16_7000"
     speech, sr = librosa.load(io.BytesIO(audio_data), sr=16000)
 
     start_time = time.time()
 
     model = AutoModelForSpeechSeq2Seq.from_pretrained(
-        model_id,
+        model_name,
         torch_dtype=torch_dtype,
         low_cpu_mem_usage=True,
         use_safetensors=True,
         attn_implementation="sdpa",
     )
-    processor = AutoProcessor.from_pretrained(model_id)
+    processor = AutoProcessor.from_pretrained(model_name)
 
     assistant_model = WhisperForConditionalGeneration.from_pretrained(
-        assistant_model_id,
+        assistant_model_name,
         torch_dtype=torch_dtype,
         low_cpu_mem_usage=True,
         use_safetensors=True,
@@ -102,55 +103,12 @@ def transcribe_audio_speculative(audio_data):
         output, skip_special_tokens=True, normalize=True
     )[0]
 
-    # pipe = pipeline(
-    #     "automatic-speech-recognition",
-    #     model=model,
-    #     tokenizer=processor.tokenizer,
-    #     feature_extractor=processor.feature_extractor,
-    #     max_new_tokens=128,
-    #     chunk_length_s=30,
-    #     batch_size=8,
-    #     generate_kwargs={
-    #         "assistant_model": assistant_model,
-    #         "language": "<|it|>",
-    #         "task": "transcribe",
-    #     },
-    #     torch_dtype=torch_dtype,
-    #     # device=device,
-    # )
-
-    # transcribed_speech = pipe(inputs)
-
     generation_time = round(time.time() - start_time, 2)
 
     return transcribed_speech, generation_time
 
 
-def transcribe_audio_NLP(audio_data):
-    # model_name = "dbdmg/wav2vec2-xls-r-300m-italian"
-
-    model_name = "openai/whisper-tiny"
-    # model_type = 3
-
-    speech, sr = librosa.load(io.BytesIO(audio_data), sr=16000)
-
-    # else:
-    start_time = time.time()
-    transcriber = pipeline(
-        "automatic-speech-recognition",
-        model=model_name,
-        tokenizer=model_name,
-        chunk_length_s=30,
-        generate_kwargs={"task": "transcribe", "language": "<|it|>"},
-    )
-    transcribed_speech = transcriber(speech, batch_size=8)["text"]
-    generation_time = round(time.time() - start_time, 2)
-    # print("**" * 5, transcribed_speech, "**" * 5)
-
-    return transcribed_speech, generation_time
-
-
-def summary(text):
+def summary(text: str, model_summary: str = "efederici/it5-base-summarization"):
     """
     Generates a summary of the given text using the T5 model for Italian summarization.
 
@@ -160,20 +118,19 @@ def summary(text):
     Returns:
         str: The generated summary of the text.
     """
-    T5_model_ita_base = "efederici/it5-base-summarization"
 
-    tokenizer = AutoTokenizer.from_pretrained(T5_model_ita_base)
+    tokenizer = AutoTokenizer.from_pretrained(model_summary)
 
     inputs = tokenizer(text, return_tensors="pt")
 
-    model = AutoModelForSeq2SeqLM.from_pretrained(T5_model_ita_base)
+    model = AutoModelForSeq2SeqLM.from_pretrained(model_summary)
 
     outputs = model.generate(
         inputs["input_ids"],
-        max_length=50,
+        max_length=150,
         # min_length=10,
-        length_penalty=1.80,
-        num_beams=2,
+        length_penalty=1.0,
+        num_beams=3,
         # early_stopping=True,
     )
 
@@ -182,37 +139,79 @@ def summary(text):
     )
 
 
-def transcribe_audio_long(audio_data):
-    # model_size = "large-v2"
-    model_size = "large-v3"
+def add_return(stringa, frequency: int = 3, char: str = "<br>"):
+    nuova_stringa = ""
+    for i in range(len(stringa)):
+        nuova_stringa += stringa[i]
+        if (i) % frequency == 0 and stringa[i] == ".":
+            if i + 2 <= len(stringa):
+                if stringa[i + 1] != "." and stringa[i + 2] != ".":
+                    nuova_stringa += char
+    return nuova_stringa
 
-    # get device
-    # device = "cuda:0" if torch.cuda.is_available() else "cpu"
+
+def transcribe_audio_long(audio_data, message, model_size: str = "large-v3"):
+    # Crea un account Telegraph
+    # telegraph_account = telegraph.api.create_account(short_name="Prova duccio")
+    tph = Telegraph()
+
+    tph.create_account(short_name="pp*", author_name="o", author_url="")
+
+    msg = bot.send_message(
+        message.chat.id,
+        "L'audio inviato è molto lungo!\nCaricamento Modello Faster in corso...",
+    )
 
     # Run on CPU with INT8
     start_time = time.time()
-
-    model = WhisperModel(model_size, device="cpu", compute_type="int8")
-
+    model = WhisperModel(
+        model_size,
+        compute_type="int8",
+        cpu_threads=2,
+        download_root="../../results/model",
+        num_workers=2,
+    )
     segments, _ = model.transcribe(
         io.BytesIO(audio_data), beam_size=5, vad_filter=True, language="it"
     )
 
+    bot.edit_message_text(
+        "Modello Caricato!\nTrascrizione in corso...", message.chat.id, msg.message_id
+    )
+
     # save audio segments with start and end time, and transcript by audio segment
     start_segments, end_segments, text_segments = list(), list(), ""
-    for segment in segments:
-        # print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
+    for i, segment in enumerate(segments):
+        if i > 0 and i % 3 == 0:
+            bot.edit_message_text(
+                "Trascrizione in corso" + ("." * i), msg.chat.id, msg.message_id
+            )
         start, end, text = segment.start, segment.end, segment.text
         start_segments.append(start)
         end_segments.append(end)
+
         text_segments = text_segments + text
 
-    # summary_text = ""
+    text_segments_wspaces = add_return(text_segments)
+
     summary_text = summary(text_segments)
+
+    bot.delete_message(message.chat.id, msg.message_id)
 
     generation_time = round(time.time() - start_time, 2)
 
-    return text_segments, generation_time, summary_text
+    # Crea una pagina su Telegraph
+    page = tph.create_page(
+        title="🎙️ Trascrizione Audio 🎙️",
+        author_name="Transcribot",
+        author_url="https://t.me/NLP_transcribot",
+        html_content=f"""<p>{text_segments_wspaces}</p><br><br><p><a href=\"https://github.com/Duccioo/Language-Processing-Project\"><b>🔗Scopri di più🔗</b></a></p>""",
+    )
+
+    # Ottieni il link della pagina
+    page_url = "https://telegra.ph/{}".format(page["path"])
+
+    return page_url, generation_time, summary_text
 
 
 def generate_reply_text(audio_transcription, time_taked, summary_text=""):
@@ -220,19 +219,29 @@ def generate_reply_text(audio_transcription, time_taked, summary_text=""):
     if summary_text == "":
         final_text = f"🎙️ <b>Transcription</b> ({time_taked}s): {audio_transcription}"
     else:
-        final_text = f"🎙️ <b>Transcription</b> ({time_taked}s): {audio_transcription}\n\n📚 <b>Summary</b>: {summary_text}"
+        final_text = f"""📚 <b>Summary</b>: {summary_text}\n\n 🎙️<b>Complete Transcription</b> ({time_taked}s): <a href= \"{ audio_transcription }\">LINK</a>"""
 
     return final_text
+
+
+@bot.message_handler(commands=["start", "help"])
+def send_welcome(message):
+    text = f"Ciao {message.from_user.first_name}, questo è un bot per la trascrizione 🎙️ di Audio in Italiano 🇮🇹!\nPer iniziare una Trascrizione inviami un messaggio vocale😊\n\n{telebot.formatting.mbold('✋MAX 20MB✋')}\n\nPer più informazioni visita la [🔗Repo di Github del Progetto](https://github.com/Duccioo/Language-Processing-Project)!"
+
+    bot.reply_to(message, text, parse_mode="MARKDOWN")
 
 
 # Gestione del messaggio vocale
 @bot.message_handler(content_types=["voice", "audio"])
 def handle_voice_message(message):
     # Ottieni i dati audio dal messaggio
+    # print(message)
     if message.content_type == "voice":
+        message_info = message.voice
         file_info = bot.get_file(message.voice.file_id)
         duration = message.voice.duration
     else:
+        message_info = message.audio
         file_info = bot.get_file(message.audio.file_id)
         duration = message.audio.duration
 
@@ -242,16 +251,29 @@ def handle_voice_message(message):
 
     summary_text = ""
 
+    speculative_model_name = os.environ["TELEGRAM_BIG_MODEL"]
+    speculative_assistant_model_name = os.environ["TELEGRAM_SMALL_MODEL"]
+    faster_model_name = os.environ["TELEGRAM_FASTER_MODEL"]
+    # faster_model_name = "large-v1"
+
     # Ottieni la trascrizione
     if duration > 30:
-        transcription, time_in, summary_text = transcribe_audio_long(audio_data)
+        transcription, time_in, summary_text = transcribe_audio_long(
+            audio_data, message, model_size=faster_model_name
+        )
     else:
-        transcription, time_in = transcribe_audio_speculative(audio_data)
+        transcription, time_in = transcribe_audio_speculative(
+            audio_data, speculative_model_name, speculative_assistant_model_name
+        )
 
     reply_text = generate_reply_text(transcription, time_in, summary_text)
 
     # Invia la trascrizione come risposta
-    bot.reply_to(message, reply_text, parse_mode="HTML")
+    bot.reply_to(
+        message,
+        reply_text,
+        parse_mode="HTML",
+    )
 
 
 # Avvia il bot
