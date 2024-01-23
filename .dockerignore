@@ -1,0 +1,9 @@
+.env
+/results
+/NLP
+/grammar_design
+docker-compose.yaml
+/content
+/.venv
+testo_audio.txt
+/file_audio
