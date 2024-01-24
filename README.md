@@ -100,6 +100,20 @@ Dataets used:
 | seq2seq tiny common16 |      7000      |    0.0059     | 9.13  | 2000 |     0.8071      | 0.3797 |
 |     ctc common16      |      7000      |    0.1011     | 9.13  | 2000 |     0.2198      | 0.1835 |
 
+### Test results:
+
+| dataset | examples | model                | WER    |
+| ------- | -------- | -------------------- | ------ |
+| costum  | 20       | openai/whisper-tiny  | 0.9599 |
+| costum  | 20       | openai/whisper-small | 0.5908 |
+| costum  | 20       | openai/whisper-base  | 0.6366 |
+|         |          |                      |        |
+|         |          |                      |        |
+|         |          |                      |        |
+|         |          |                      |        |
+|         |          |                      |        |
+|         |          |                      |        |
+
 ### Resurces
 
 - [Github Repo Ufficiale ASR](https://github.com/huggingface/transformers/tree/main/examples/pytorch/speech-recognition)
@@ -126,3 +140,10 @@ Dataets used:
   - [Streaming Datasets from Internet](https://huggingface.co/blog/audio-datasets#streaming-mode-the-silver-bullet)
   - [Speculative Decoding (inference 2x faster)](https://huggingface.co/blog/whisper-speculative-decoding)
   - [Faster Whisper and Large audio Files](https://github.com/piegu/language-models/blob/master/Speech_to_Text_with_faster_whisper_on_large_audio_file_in_any_language.ipynb?source=post_page-----e4d4d2daf0cd--------------------------------)
+
+## to do:
+
+- telegram readme
+- mettere nel readme le .env
+- fare il testing su un dataset comune a tutti i modelli
+- magari fare un proprio dataset e fare la prova aggiungendo elementi da un altro dataset
