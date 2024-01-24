@@ -11,7 +11,7 @@ __pycache__/
 /audio_examples
 /results/model
 /grammar_design/lark_prof
-
+/data
 *.opus
 testo_audio.txt
 # Distribution / packaging

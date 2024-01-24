@@ -7,3 +7,6 @@ docker-compose.yaml
 /.venv
 testo_audio.txt
 /file_audio
+/dataset
+/costum_dataset
+/data

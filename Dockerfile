@@ -30,4 +30,4 @@ RUN chown -R transcriber app/models/
 
 USER transcriber
 
-CMD [ "python", "app/telegram/bot.py" ]
+CMD [ "python", "telegram/bot.py" ]
