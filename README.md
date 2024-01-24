@@ -100,7 +100,7 @@ The code is runnable on Colab on this link:
       - [modello base 300M preaddestrato](https://huggingface.co/facebook/wav2vec2-xls-r-300m)
       - [modello finetuning in italiano](https://huggingface.co/dbdmg/wav2vec2-xls-r-300m-italian)
 
-- [SEQ2SEQ](https://www.analyticsvidhya.com/blog/2020/08/a-simple-introduction-to-sequence-to-sequence-models/#:~:text=Sequence%20to%20Sequence%20(often%20abbreviated,Chatbots%2C%20Text%20Summarization%2C%20etc.):
+- [SEQ2SEQ](https://www.analyticsvidhya.com/blog/2020/08/a-simple-introduction-to-sequence-to-sequence-models/):
 
   - Model **Whisper**:
 
