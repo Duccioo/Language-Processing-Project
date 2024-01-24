@@ -1,0 +1,28 @@
+operations
+  assignments	x
+  assignments
+    y
+    5
+  assignments	X
+  assignments
+    Y
+    5
+  switch_statement
+    switch_declaration
+      condition
+        switch
+        x
+    execution_block
+      case_block
+        0
+        assignment_result
+          z
+          10
+        break_switch
+      default_block
+        assignment_result
+          z
+          1
+        break_switch
+
+Result of the parser:	(10, [{'case-number': 0, 'assignment': 10, 'break': True}, {'case-number': 'default', 'assignment': 1, 'break': False}])

@@ -1,0 +1,28 @@
+?operations:(assignments)+(switch_statement)
+
+switch_statement: ((switch_declaration) (execution_block))*
+switch_declaration:  (condition)
+
+condition:  CONDITION_KEYWORD "(" VARIABLES ")" 
+        |   CONDITION_KEYWORD "(" NUMBER ")"
+        |   CONDITION_KEYWORD "()"
+
+execution_block: "{" (case_block)* (default_block) "}"
+
+case_block: "case" NUMBER ":" assignment_result break_switch
+
+default_block: "default:" assignment_result break_switch
+
+break_switch: "break;"
+
+assignments: VARIABLES "=" NUMBER ";" | VARIABLES ";"
+assignment_result: RESULT_VARIABLE "=" NUMBER ";"
+
+CONDITION_KEYWORD : "switch" 
+VARIABLES: "x"|"y"
+RESULT_VARIABLE: "z"
+
+%import common.ESCAPED_STRING
+%import common.NUMBER
+%import common.WS_INLINE
+%ignore WS_INLINE 
