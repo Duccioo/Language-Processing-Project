@@ -11,25 +11,62 @@ The repository is divided into 2 parts:
 
 <details>
 <summary>Grammar Design</summary>
-The original text of the Assignment:
+ <details>
+ <summary>Grammar Design Duccio Meconcelli</summary> 
+   The original text of the Assignment:
 
-> Using lark implement a parser for the definition of functions, with the following
-> rules
+>  Using lark implement a parser for the definition of functions, with the following rules
 
 > - the functions are defined as:
 >   function name(par1,par2,…) {
 >   return par1 op par2 op par3…;
 >   }
 
-> where name is the function name with the usual restrictions (an alphanumeric string beginning with a letter), par1.. are the function parameters whose names follow the same rules as variables names, op is + or \* (sum or product). The function body contains
+> where name is the function name with the usual restrictions (an alphanumeric string beginning with a letter), par1.. are the function parameters whose names follow the same rules as 
+  variables names, op is + or \* (sum or product). The function body contains
 > only the return instruction that involves the parameters.
 
 > - assume that only one function can be defined
-> - after the function definition, there are the calls whose syntax is: "name(cost1,cost2,…);" where name is the name of a defined function, cost1,… are numeric constants in the same number as the function arguments.
+> - after the function definition, there are the calls whose syntax is: "name(cost1,cost2,…);" where name is the name of a defined function, cost1,… are numeric constants in the same 
+    number as the function arguments.
 
 > - print the result of each function call
-
+ 
 </details>
+
+<details>
+<summary>Grammar Design Sofia Albini </summary> 
+ Using lark implement a parser for managing the “switch” statement
+in a simplified version.
+
+- the variable used in the switch is one integer variable in a predefined
+   set of two variables x, y.
+   The values to x, y are assigned before the if statement (assume 0
+   if there is no assignment)
+
+   x = 1;
+   y = 2;
+
+- the switch instruction has the following syntax
+
+   switch(var) {
+     case 0: z=cost0;
+             break;
+
+     …..
+     case N: z=costN;
+             break;
+
+     default: z=costD;
+             break;
+   }
+
+- the instruction contains only the assignment
+   of a constant value to the variable z
+
+- at the end print the value of the variable z
+</details>    
+
 
 ## NLP Project
 
