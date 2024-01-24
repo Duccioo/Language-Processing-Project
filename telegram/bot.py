@@ -137,7 +137,7 @@ def summary(
     )
 
 
-def add_return(stringa, frequency: int = 3, char: str = "<br>"):
+def add_return(stringa, frequency: int = 3, char: str = " <br> "):
     """
     Concatenates a string with a given character at certain intervals.
 
@@ -166,10 +166,25 @@ def transcribe_audio_long(
     model_summary: str = "efederici/it5-base-summarization",
     cache_dir: str = "models",
 ):
+    """
+    Transcribe long audio data using a specified model, and summarize the transcribed text.
+
+    Args:
+        audio_data: The audio data to transcribe.
+        message: The message associated with the audio data.
+        model_size: The size of the transcribing model (default is "large-v3").
+        model_summary: The model used for summarization (default is "efederici/it5-base-summarization").
+        cache_dir: The directory to cache models (default is "models").
+
+    Returns:
+        page_url: The URL of the transcribed and summarized audio page on Telegraph.
+        generation_time: The time taken for transcribing and summarizing the audio.
+        summary_text: The summarized text of the transcribed audio.
+    """
     # Crea un account Telegraph
     # telegraph_account = telegraph.api.create_account(short_name="Prova duccio")
     tph = Telegraph()
-    tph.create_account(short_name="pp*", author_name="o", author_url="")
+    tph.create_account(short_name="transcribot", author_name="transcribot", author_url="")
 
     msg = bot.send_message(
         message.chat.id,
@@ -196,7 +211,7 @@ def transcribe_audio_long(
     # save audio segments with start and end time, and transcript by audio segment
     start_segments, end_segments, text_segments = list(), list(), ""
     for i, segment in enumerate(segments):
-        if i > 0 and i % 3 == 0:
+        if i > 0 and i % 2 == 0:
             bot.edit_message_text(
                 "Trascrizione in corso" + ("." * i), msg.chat.id, msg.message_id
             )
