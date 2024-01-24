@@ -2,7 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+telegram/models
 # C extensions
 *.so
 /grammar_design/lark

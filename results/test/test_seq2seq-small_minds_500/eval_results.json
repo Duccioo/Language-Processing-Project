@@ -1,0 +1,8 @@
+{
+    "eval_loss": 2.7102885246276855,
+    "eval_runtime": 18.2661,
+    "eval_samples": 40,
+    "eval_samples_per_second": 2.19,
+    "eval_steps_per_second": 0.274,
+    "eval_wer": 0.7015706806282722
+}

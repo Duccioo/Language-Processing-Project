@@ -134,13 +134,22 @@ def create_vocabulary_from_data(
         vocab = list(set(all_text))
         return {"vocab": [vocab], "all_text": [all_text]}
 
-    vocabs = datasets.map(
-        extract_all_chars,
-        batched=True,
-        batch_size=-1,
-        keep_in_memory=True,
-        remove_columns=datasets["train"].column_names,
-    )
+    try:
+        vocabs = datasets.map(
+            extract_all_chars,
+            batched=True,
+            batch_size=-1,
+            keep_in_memory=True,
+            remove_columns=datasets["train"].column_names,
+        )
+    except:
+        vocabs = datasets.map(
+            extract_all_chars,
+            batched=True,
+            batch_size=-1,
+            keep_in_memory=True,
+            remove_columns=datasets["eval"].column_names,
+        )
 
     # take union of all unique characters in each dataset
     vocab_set = functools.reduce(
@@ -222,7 +231,7 @@ def main():
 
     # 1. First, let's load the dataset
     raw_datasets = DatasetDict()
-    
+
     if training_args.do_train:
         raw_datasets["train"] = load_dataset(
             data_args.dataset_name,

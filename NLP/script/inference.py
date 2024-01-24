@@ -45,7 +45,9 @@ def main():
         chunk_length_s=30,
         generate_kwargs={"task": "transcribe", "language": "<|it|>"},
     )
+    
     speech, sr = librosa.load(audio_file_name, sr=16000)
+    
     transcribed_speech = transcriber(speech, batch_size=8)
     print(transcribed_speech)
 

@@ -176,8 +176,9 @@ if __name__ == "__main__":
     function_definition = """ 
     
         function primo(x, y) {
-            return x+y;
+            return x+y+3;
         }
+                
         function secondo(x, y) { 
             return x-y; 
         }
@@ -187,6 +188,8 @@ if __name__ == "__main__":
         
         secondo(3, 4);
         primo(1,1);
+        terzo(1, 4,2);
+        
     """
 
     # Create the Lark parser
