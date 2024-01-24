@@ -12,6 +12,7 @@ __pycache__/
 /results/model
 /grammar_design/lark_prof
 /data
+docker-compose.yaml
 *.opus
 testo_audio.txt
 # Distribution / packaging

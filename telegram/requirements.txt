@@ -6,3 +6,4 @@ librosa
 faster_whisper
 torch
 telegraph
+accelerate

@@ -21,12 +21,15 @@ RUN pip install --no-cache-dir -U pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Copy code and define default command
-COPY telegram/ app/telegram/
+WORKDIR /app
+
+
+COPY telegram ./telegram
 
 RUN useradd -m transcriber
-RUN chown -R transcriber app/telegram/
-RUN mkdir app/models
-RUN chown -R transcriber app/models/
+RUN chown -R transcriber telegram/
+RUN mkdir models
+RUN chown -R transcriber models/
 
 USER transcriber
 

@@ -181,9 +181,9 @@ def transcribe_audio_long(
     model = WhisperModel(
         model_size,
         compute_type="int8",
-        cpu_threads=2,
+        cpu_threads=1,
         download_root=cache_dir,
-        num_workers=2,
+        num_workers=1,
     )
     segments, _ = model.transcribe(
         io.BytesIO(audio_data), beam_size=5, vad_filter=True, language="it"
