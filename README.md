@@ -65,7 +65,10 @@ in a simplified version.
    of a constant value to the variable z
 
 - at the end print the value of the variable z
-</details>    
+</details>  
+</details>
+
+
 
 
 ## NLP Project
