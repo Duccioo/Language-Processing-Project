@@ -20,7 +20,9 @@
     | "-" factor -> neg
 
 ?function_call: function_name "(" args ")" ";" 
-?args: NUMBER ("," ["-"] NUMBER)*
+?args: number_var ("," number_var)*
+
+?number_var: NUMBER  | "-" NUMBER -> negative_number
 
 %import common.CNAME -> NAME
 %import common.NUMBER -> NUMBER

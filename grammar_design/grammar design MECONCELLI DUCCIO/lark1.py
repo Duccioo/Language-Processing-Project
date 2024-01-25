@@ -125,6 +125,10 @@ class FunctionTransformer(Transformer):
         self.func["expression"]["variable"].append(args[0])
         return args
 
+    def negative_number(self, args):
+        if isinstance(args[0], float):
+            return -float(args[0])
+
 
 def calc_expression(variables: dict, operations: list):
     def substitute_var(elemento):
@@ -180,15 +184,15 @@ if __name__ == "__main__":
         }
                 
         function secondo(x, y) { 
-            return x-y; 
+            return -x-(y+3); 
         }
         function terzo(x,y,z){
-            return x*y*z;
+            return x*y+z;
         }
         
         secondo(3, 4);
         primo(1,1);
-        terzo(1, 4,2);
+        terzo(-1, -4, 2);
         
     """
 
