@@ -239,6 +239,12 @@ must be set for the bot to work correctly:
 - `TELEGRAM_FASTER_MODEL = "medium"` (possible options: tiny, base, small, large, large-v2, large-v3)
 - `TELEGRAM_SUMMARY_MODEL = "*name_or_path_assistent_model*"` (e.g. efederici/it5-base-summarization)
 
+## Authors
+
+- [@sofiaalbini](https://github.com/sofiaalbini)
+- [@duccioo](https://github.com/Duccioo)
+
+
 ## Resurces
 
 - [Github Repo Ufficiale ASR](https://github.com/huggingface/transformers/tree/main/examples/pytorch/speech-recognition)
