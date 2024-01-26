@@ -3,7 +3,7 @@
 
 
 from lark import Lark
-from pprint import pprint
+
 
 from parser_functions import parser_from_file, parser_from_string
 from visualizer_functions import create_pdf_and_svg
@@ -11,7 +11,6 @@ from Printer import Printer
 
 PRINT_FIRST_PART_EXERCISE    = True
 PRINT_SECOND_PART_EXERCISE   = True
-DEBUG_SECOND_PART_EXERCISE   = False
 CREATE_PDF_AND_SVG      = False
 GRAMMAR_FROM_FILE       = False 
 INPUT_STRING            = 'x=1;y=2;switch(x){case 0:z=10;break;default:z=1;break;}'
@@ -54,29 +53,12 @@ if __name__ == "__main__":
 
     ########### SECONDA PARTE DELL'ESERCIZIO ############
     if PRINT_SECOND_PART_EXERCISE:
-        # if GRAMMAR_FROM_FILE:
-        #     grammarWithTransformer = Lark.open(
-        #         GRAMMAR_FILE,
-        #         rel_to = __file__,
-        #         start = "operations",# iniziamo con operations perchè così è il nome dell'operazione radice del parse tree
-        #         parser = 'lalr',
-        #         transformer = Printer(DEBUG_SECOND_EXERCISE)
-        #         )
-        # else:
-        #     grammarWithTransformer = Lark(
-        #         GRAMMAR_FILE if GRAMMAR_FROM_FILE else INLINE_GRAMMAR,
-        #         start = "operations",# iniziamo con operations perchè così è il nome dell'operazione radice del parse tree
-        #         parser = 'lalr',
-        #         transformer = Printer(DEBUG_SECOND_EXERCISE)
-        #         )
-        transformer = Printer(DEBUG_SECOND_PART_EXERCISE)
+       
+        transformer = Printer()
         parser = parser_from_file(GRAMMAR_FILE, transformer = transformer) \
             if GRAMMAR_FROM_FILE \
             else parser_from_string(INLINE_GRAMMAR, transformer = transformer)
-        if not DEBUG_SECOND_PART_EXERCISE:
-            result = parser.parse(INPUT_STRING)
-            print(f'Result of the parser:\t{result}')
-        else:
-            result, cases = parser.parse(INPUT_STRING)
-            print(f'Result of the parser:\t{result}')
-            pprint(cases)
+       
+        result = parser.parse(INPUT_STRING)
+        print(f'Result of the parser:\t{result}')
+        

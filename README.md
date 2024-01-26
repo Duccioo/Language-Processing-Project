@@ -200,6 +200,8 @@ Then it's mandatory to set up the propper Environment Variables for downloading 
 |     ctc common11      |      7000      |    0.0967     | 9.13  | 2000 |     0.2142      | 0.1859 |
 | seq2seq tiny common16 |      7000      |    0.0059     | 9.13  | 2000 |     0.8071      | 0.3797 |
 |     ctc common16      |      7000      |    0.1011     | 9.13  | 2000 |     0.2198      | 0.1835 |
+| seq2seq tiny custom   |      40        |    0.108733   | 533   | 800  |    3.42*10^-5   | 0.002  |
+
 
 ### Test results:
 
@@ -215,7 +217,10 @@ Then it's mandatory to set up the propper Environment Variables for downloading 
 | costum  | 40       | seq2seq_small_fleurs_3000  | 0.6876 |
 | costum  | 40       | seq2seq_small_MINDS        | 0.7016 |
 | costum  | 40       | ctc_300M_common11_7000     | 0.6323 |
-| costum  | 40       | ctc_common16_7000          | 0.5983 |
+| costum  | 40       | ctc_common16_7000          | 0.5983 |   
+| fleurs  | 300      | whispertiny-custom         | 0.63   |
+| fleurs  | 300      | openai/whisper-tiny        | 0.44   |           
+
 
 ## Telegram:
 

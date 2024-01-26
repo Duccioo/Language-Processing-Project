@@ -69,7 +69,7 @@ class Printer(Transformer):
                 },
             ]
         '''
-        return args
+        return args       #numero di blocchi case presenti + blocco default 
         
     def case_block(self, args):
         '''
