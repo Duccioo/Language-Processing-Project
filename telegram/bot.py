@@ -12,7 +12,7 @@ from telegraph import Telegraph
 
 
 # AI
-from transformers import pipeline
+# from transformers import pipeline
 from transformers import (
     AutoModelForSeq2SeqLM,
     AutoTokenizer,
@@ -69,7 +69,13 @@ def transcribe_audio_speculative(
     cache_dir: str = "models",
 ):
     torch_dtype = torch.float32
-    speech, sr = librosa.load(io.BytesIO(audio_data), sr=16000)
+    try:
+        speech, sr = librosa.load(io.BytesIO(audio_data), sr=16000)
+    except:
+        with open("audio_file.wav", "wb") as f:
+            f.write(audio_data)
+        speech, sr = librosa.load("audio_file.wav", sr=16000)
+        os.remove("audio_file.wav")
 
     start_time = time.time()
     model = AutoModelForSpeechSeq2Seq.from_pretrained(
@@ -183,7 +189,9 @@ def transcribe_audio_long(
     # Crea un account Telegraph
     # telegraph_account = telegraph.api.create_account(short_name="Prova duccio")
     tph = Telegraph()
-    tph.create_account(short_name="transcribot", author_name="transcribot", author_url="")
+    tph.create_account(
+        short_name="transcribot", author_name="transcribot", author_url=""
+    )
 
     msg = bot.send_message(
         message.chat.id,
@@ -262,7 +270,7 @@ def send_welcome(message):
 
 
 # Gestione del messaggio vocale
-@bot.message_handler(content_types=["voice", "audio"])
+@bot.message_handler(content_types=["voice", "audio", "document"])
 def handle_voice_message(message):
     # Ottieni i dati audio dal messaggio
 
@@ -281,7 +289,17 @@ def handle_voice_message(message):
         message_info = message.voice
         file_info = bot.get_file(message.voice.file_id)
         duration = message.voice.duration
-    else:
+
+    elif message.content_type == "document" and (
+        ".m4a" in message.document.file_name
+        or ".wav" in message.document.file_name
+        or ".mp3" in message.document.file_name
+    ):
+        message_info = message.document
+        file_info = bot.get_file(message.document.file_id)
+        duration = file_info.file_size / 15000
+
+    elif message.content_type == "audio":
         message_info = message.audio
         file_info = bot.get_file(message.audio.file_id)
         duration = message.audio.duration
