@@ -1,6 +1,6 @@
 ?operations:(assignments)+(switch_statement)
 
-switch_statement: ((switch_declaration) (execution_block))*
+switch_statement: ((switch_declaration) (execution_block))
 switch_declaration:  (condition)
 
 condition:  CONDITION_KEYWORD "(" VARIABLES ")" 

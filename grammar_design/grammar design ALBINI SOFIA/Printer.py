@@ -2,22 +2,21 @@ from lark import Transformer
 
 ########### CLASSE PER SECONDA PARTE DELL'ESERCIZIO ############
 class Printer(Transformer):
-    NUMBER = int
+
     DEFAULT_ASSIGNMENT_VALUE : int = 0
     ERROR_MESSAGE : str = 'One error occurred during the execution of the switch statement'
     
     def __init__(self, debug = False):
         self.vars = {}
-        self.case_assignments = {}
         self.result = {}
-        self.DEBUG = debug
+
     def operations(self,args):
         '''Ritorniamo il risultato dello switch_statement'''
         return args[-1]
     
     def assignments(self, args):
         if len(args) == 1:
-            self.vars[args[0]] = Printer.DEFAULT_ASSIGNMENT_VALUE
+            self.vars[args[0]] = Printer.DEFAULT_ASSIGNMENT_VALUE 
         else:
             self.vars[args[0]] = args[1]
     
@@ -38,7 +37,7 @@ class Printer(Transformer):
             else:
                 self.result = Printer.ERROR_MESSAGE
         
-        return self.result if not self.DEBUG else self.result, casesJson
+        return self.result, casesJson 
 
     def switch_declaration(self, args):
         # ritorna il valore della variabile usata nello switch
