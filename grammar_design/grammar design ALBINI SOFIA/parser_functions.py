@@ -45,5 +45,3 @@ def parser_from_file(grammar_file : str, start_block : str = "operations", trans
 
 
 
-#Se non passi un transformer, la funzione utilizza il parser Earley e imposta il livello di ambiguità su "explicit" per gestire eventuali ambiguità nella grammatica. Questa scelta potrebbe essere basata sulla considerazione che il parser Earley è in grado di gestire grammatiche più generiche e ambigue rispetto al parser LALR, ma richiede più risorse computazionali.
-#Se passi un transformer, la funzione utilizza il parser LALR. Questa scelta potrebbe essere basata sulla considerazione che il parser LALR è spesso più veloce nell'analisi sintattica rispetto al parser Earley e potrebbe essere sufficiente per grammatiche meno ambigue. 

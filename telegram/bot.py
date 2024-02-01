@@ -13,7 +13,7 @@ from telegraph import Telegraph
 
 # AI
 # from transformers import pipeline
-from transformers import (
+from transformers import (   
     AutoModelForSeq2SeqLM,
     AutoTokenizer,
     AutoModelForSpeechSeq2Seq,
@@ -66,7 +66,7 @@ def transcribe_audio_speculative(
     audio_data,
     model_name: str = "openai/whisper-small",
     assistant_model_name: str = "openai/whisper-tiny",
-    cache_dir: str = "models",
+    cache_dir: str = "models", 
 ):
     torch_dtype = torch.float32
     try:
@@ -202,7 +202,8 @@ def transcribe_audio_long(
     start_time = time.time()
     model = WhisperModel(
         model_size,
-        compute_type="int8",
+        #compute_type="int8",
+        device="cpu", 
         cpu_threads=1,
         download_root=cache_dir,
         num_workers=1,

@@ -11,7 +11,7 @@ from Printer import Printer
 
 PRINT_FIRST_PART_EXERCISE    = True
 PRINT_SECOND_PART_EXERCISE   = True
-CREATE_PDF_AND_SVG      = False
+CREATE_PDF_AND_SVG      = False 
 GRAMMAR_FROM_FILE       = False 
 INPUT_STRING            = 'x=1;y=2;switch(x){case 0:z=10;break;default:z=1;break;}'
 GRAMMAR_FILE            = 'grammar.lark'
